@@ -1,28 +1,34 @@
 import { useGadget } from "@gadgetinc/react-shopify-app-bridge";
-import { useLoaderData, Outlet } from "react-router";
-import { NavMenu } from "../components/NavMenu";
+import { Outlet, useLoaderData } from "react-router";
 import { FullPageSpinner } from "../components/FullPageSpinner";
-import type { Route } from "./+types/_app"; 
+import { NavMenu } from "../components/NavMenu";
+import type { Route } from "./+types/_app";
 
 export const loader = async ({ context }: Route.LoaderArgs) => {
   return { gadgetConfig: context.gadgetConfig };
 };
 
-export default function() {
-  const { isAuthenticated, loading } = useGadget();
+export default function () {
+  const { isAuthenticated, isEmbedded, isRootFrameRequest, loading } = useGadget();
 
   if (loading) {
     return <FullPageSpinner />;
   }
 
-  return isAuthenticated ? (
-    <>
-      <NavMenu />
-      <Outlet />
-    </>
-  ) : (
-    <Unauthenticated />
-  );
+  if (isAuthenticated && isEmbedded) {
+    return (
+      <>
+        <NavMenu />
+        <Outlet />
+      </>
+    );
+  }
+
+  if (isRootFrameRequest || !isEmbedded) {
+    return <Unauthenticated />;
+  }
+
+  return <Unauthenticated />;
 }
 
 const Unauthenticated = () => {

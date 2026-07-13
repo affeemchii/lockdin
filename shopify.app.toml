@@ -15,3 +15,6 @@ api_version = "2026-04"
 compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 uri = "https://webhooks.gadget-services.net/shopify/v1?domain=lockdin.gadget.app"
 topics = [ "shop/update", "app/uninstalled" ]
+
+[access_scopes]
+scopes = "write_orders, read_orders, write_products, read_products, write_customers, read_customers, read_product_listings, write_themes, read_themes, write_script_tags, read_script_tags, write_purchase_options, read_purchase_options, write_payment_terms, read_payment_terms, read_merchant_managed_fulfillment_orders, write_merchant_managed_fulfillment_orders, read_fulfillments, write_fulfillments, read_inventory, write_inventory"

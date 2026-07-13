@@ -60,7 +60,6 @@ export default function Settings() {
 
         {/* Save Bar */}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          {/* @ts-expect-error s-button needs to be recognized */}
           <s-button variant="primary" onClick={handleSave}>Save settings</s-button>
         </div>
 
