@@ -4,7 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-    useLocation,
+  useLocation,
 } from "react-router";
 import {
   AppType,
@@ -52,6 +52,7 @@ export const Layout = ({ children }: { children: React.ReactNode; }) => {
         <Meta />
         <script
           src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
+          data-api-key="3c75a0223a59bad6761918037660c54f"
           suppressHydrationWarning={true}
         ></script>
         <script src="https://cdn.shopify.com/shopifycloud/polaris.js"></script>
@@ -71,7 +72,6 @@ export const Layout = ({ children }: { children: React.ReactNode; }) => {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   const { gadgetConfig } = loaderData;
-
   const location = useLocation();
 
   return (
