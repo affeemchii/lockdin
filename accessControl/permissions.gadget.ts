@@ -45,6 +45,9 @@ export const permissions: GadgetPermissions = {
           },
         },
       },
+      actions: {
+        createSellingPlanGroup: true,
+      },
     },
     unauthenticated: {
       storageKey: "unauthenticated",

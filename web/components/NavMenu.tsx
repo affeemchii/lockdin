@@ -8,10 +8,11 @@ NOTE ABOUT TYPES
 export function NavMenu() {
   return (
     <>
-      {/* @ts-expect-error Property 's-app-nav' does not exist on type 'JSX.IntrinsicElements' */}
       <s-app-nav>
-        <s-link href="/">Home</s-link>
-        {/* @ts-expect-error Property 's-app-nav' does not exist on type 'JSX.IntrinsicElements' */}
+        <s-link href="/app">Dashboard</s-link>
+        <s-link href="/app/analytics">Analytics</s-link>
+        <s-link href="/app/settings">Settings</s-link>
+        <s-link href="/app/integrations">Integrations</s-link>
       </s-app-nav>
     </>
   );
