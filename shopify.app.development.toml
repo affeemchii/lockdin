@@ -1,0 +1,21 @@
+# Learn more about working with Shopify TOML files with Gadget at https://docs.gadget.dev/guides/plugins/shopify/advanced-topics/shopify-app-toml
+
+client_id = "19363d7f4de57a8eebeebaeb22c5ec8b"
+name = "lockdin-development"
+application_url = "https://lockdin--development.gadget.app/api/shopify/install-or-render"
+embedded = true
+
+handle = "lockdin-development"
+[auth]
+redirect_urls = [ "https://lockdin--development.gadget.app/api/connections/auth/shopify/callback" ]
+
+[access_scopes]
+scopes = "write_orders, read_orders, write_products, read_products, write_customers, read_customers, read_product_listings, write_themes, read_themes, write_script_tags, read_script_tags, write_purchase_options, read_purchase_options, write_payment_terms, read_payment_terms, read_merchant_managed_fulfillment_orders, write_merchant_managed_fulfillment_orders, read_fulfillments, write_fulfillments, read_inventory, write_inventory"
+
+[webhooks]
+api_version = "2026-04"
+
+[[webhooks.subscriptions]]
+compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+uri = "https://webhooks.gadget-services.net/shopify/v1?domain=lockdin--development.gadget.app"
+topics = [ "shop/update", "app/uninstalled" ]
