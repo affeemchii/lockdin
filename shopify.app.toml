@@ -2,18 +2,18 @@
 
 client_id = "3c75a0223a59bad6761918037660c54f"
 name = "lockdin"
-application_url = "https://lockdin.gadget.app/api/shopify/install-or-render"
+application_url = "https://lockdin--development.gadget.app/api/shopify/install-or-render"
 embedded = true
 
 [auth]
-redirect_urls = [ "https://lockdin.gadget.app/api/connections/auth/shopify/callback" ]
+redirect_urls = [ "https://lockdin--development.gadget.app/api/connections/auth/shopify/callback" ]
 
 [webhooks]
 api_version = "2026-04"
 
 [[webhooks.subscriptions]]
 compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
-uri = "https://webhooks.gadget-services.net/shopify/v1?domain=lockdin.gadget.app"
+uri = "https://webhooks.gadget-services.net/shopify/v1?domain=lockdin--development.gadget.app"
 topics = [ "shop/update", "app/uninstalled" ]
 
 [access_scopes]

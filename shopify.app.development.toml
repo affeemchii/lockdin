@@ -1,6 +1,6 @@
 # Learn more about working with Shopify TOML files with Gadget at https://docs.gadget.dev/guides/plugins/shopify/advanced-topics/shopify-app-toml
 
-client_id = "19363d7f4de57a8eebeebaeb22c5ec8b"
+client_id = "eab75fad28d81025a6ef212ff3f2fd0e"
 name = "lockdin-development"
 application_url = "https://lockdin--development.gadget.app/api/shopify/install-or-render"
 embedded = true
@@ -10,7 +10,7 @@ handle = "lockdin-development"
 redirect_urls = [ "https://lockdin--development.gadget.app/api/connections/auth/shopify/callback" ]
 
 [access_scopes]
-scopes = "write_orders, read_orders, write_products, read_products, write_customers, read_customers, read_product_listings, write_themes, read_themes, write_script_tags, read_script_tags, write_purchase_options, read_purchase_options, write_payment_terms, read_payment_terms, read_merchant_managed_fulfillment_orders, write_merchant_managed_fulfillment_orders, read_fulfillments, write_fulfillments, read_inventory, write_inventory"
+scopes = "read_customers, write_customers, write_orders, read_orders, write_products, read_products, read_draft_orders, write_fulfillments, read_fulfillments, write_inventory, read_inventory, write_merchant_managed_fulfillment_orders, read_merchant_managed_fulfillment_orders, write_draft_orders, write_payment_terms, read_payment_terms, write_purchase_options, read_purchase_options, read_product_listings, write_script_tags, read_script_tags, write_themes, read_themes"
 
 [webhooks]
 api_version = "2026-04"

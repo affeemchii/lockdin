@@ -15,7 +15,11 @@ export default function () {
     return <FullPageSpinner />;
   }
 
-  if (isAuthenticated && isEmbedded) {
+  if (isRootFrameRequest && !isEmbedded) {
+    return <Unauthenticated />;
+  }
+
+  if (isAuthenticated || isEmbedded) {
     return (
       <>
         <NavMenu />
@@ -24,11 +28,16 @@ export default function () {
     );
   }
 
-  if (isRootFrameRequest || !isEmbedded) {
-    return <Unauthenticated />;
+  if (isEmbedded && !isAuthenticated) {
+    return <FullPageSpinner />;
   }
 
-  return <Unauthenticated />;
+  return (
+    <>
+      <NavMenu />
+      <Outlet />
+    </>
+  );
 }
 
 const Unauthenticated = () => {

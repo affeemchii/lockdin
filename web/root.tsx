@@ -18,10 +18,19 @@ import { FullPageSpinner } from "./components/FullPageSpinner";
 import { ProductionErrorBoundary, DevelopmentErrorBoundary } from "gadget-server/react-router";
 
 import type { Route } from "./+types/root";
+
+const SHOPIFY_API_KEY = "19363d7f4de57a8eebeebaeb22c5ec8b";
+const SHOPIFY_APP_BRIDGE_SRC = "https://cdn.shopify.com/shopifycloud/app-bridge.js";
+
 export const links = () => [
   {
     rel: "stylesheet",
     href: "https://assets.gadget.dev/assets/reset.min.css"
+  },
+  {
+    rel: "preload",
+    href: "https://cdn.shopify.com/shopifycloud/polaris.js",
+    as: "script"
   }
 ];
 
@@ -37,7 +46,7 @@ export const meta = () => [
   {
     name: "shopify-api-key",
     suppressHydrationWarning: true,
-    content: "%SHOPIFY_API_KEY%"
+    content: SHOPIFY_API_KEY
   },
 ];
 
@@ -48,15 +57,20 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 export const Layout = ({ children }: { children: React.ReactNode; }) => {
   return (
     <html lang="en">
-      <head>
-        <Meta />
+      <head suppressHydrationWarning>
         <script
-          src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
-          data-api-key="3c75a0223a59bad6761918037660c54f"
-          suppressHydrationWarning={true}
-        ></script>
-        <script src="https://cdn.shopify.com/shopifycloud/polaris.js"></script>
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (!document.querySelector('script[src="${SHOPIFY_APP_BRIDGE_SRC}"]')) {
+                document.write('<script src="${SHOPIFY_APP_BRIDGE_SRC}" data-api-key="${SHOPIFY_API_KEY}"><\\/script>');
+              }
+            `,
+          }}
+        />
+        <Meta />
         <Links />
+        <script async src="https://cdn.shopify.com/shopifycloud/polaris.js" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: "" }} />
       </head>
       <body>
         <Suspense fallback={<FullPageSpinner />}>
