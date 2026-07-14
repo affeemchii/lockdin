@@ -1,4 +1,38 @@
+import { useState, useEffect } from "react";
+import { api } from "../api";
+
 export default function AppDashboardIndex() {
+  const [purchaseOptions, setPurchaseOptions] = useState<any[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const result = await api.listSellingPlanGroups();
+        setPurchaseOptions(result.plans || []);
+      } catch (err) {
+        console.error("Failed to fetch purchase options", err);
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  const handleDelete = async (sellingPlanGroupId: string) => {
+    if (!confirm("Are you sure you want to delete this purchase option? This cannot be undone.")) return;
+    setDeletingId(sellingPlanGroupId);
+    try {
+      await api.deleteSellingPlanGroup({ sellingPlanGroupId });
+      setPurchaseOptions(prev => prev.filter(p => p.id !== sellingPlanGroupId));
+    } catch (err) {
+      console.error("Failed to delete", err);
+      alert("Failed to delete purchase option. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <s-page heading="Dashboard">
@@ -55,46 +89,84 @@ export default function AppDashboardIndex() {
             </a>
           </div>
 
-          {/* Empty State Card */}
-          <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "60px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            
-            {/* Illustration */}
-            <div style={{ width: "120px", height: "120px", marginBottom: "24px", backgroundColor: "#f6f6f7", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="12" y="28" width="40" height="28" rx="4" fill="#e1e3e5"/>
-                <rect x="12" y="28" width="40" height="28" rx="4" stroke="#8c9196" strokeWidth="2" fill="#f6f6f7"/>
-                <path d="M22 28V20C22 14.477 26.477 10 32 10C37.523 10 42 14.477 42 20V28" stroke="#8c9196" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="32" cy="42" r="5" fill="#8c9196"/>
-                <rect x="30" y="45" width="4" height="6" rx="1" fill="#8c9196"/>
-                <circle cx="20" cy="54" r="3" fill="#ff9900"/>
-                <circle cx="32" cy="58" r="3" fill="#ff9900"/>
-                <circle cx="44" cy="54" r="3" fill="#ff9900"/>
-              </svg>
+          {/* Purchase Options List */}
+          {!loadingOptions && purchaseOptions.length > 0 && (
+            <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", overflow: "hidden" }}>
+              <div style={{ padding: "16px 20px", borderBottom: "1px solid #e1e3e5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#202223", margin: 0 }}>Purchase options</h2>
+                <s-link href="/app/create">
+                  <button style={{ padding: "8px 16px", backgroundColor: "#202223", color: "#ffffff", fontSize: "13px", fontWeight: "600", borderRadius: "6px", border: "none", cursor: "pointer" }}>
+                    Create purchase option
+                  </button>
+                </s-link>
+              </div>
+              {purchaseOptions.map((option, index) => (
+                <div key={option.id} style={{ padding: "16px 20px", borderBottom: index < purchaseOptions.length - 1 ? "1px solid #e1e3e5" : "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <p style={{ fontSize: "14px", fontWeight: "600", color: "#202223", margin: 0 }}>{option.name}</p>
+                    <p style={{ fontSize: "12px", color: "#6d7175", margin: 0 }}>
+                      {option.depositType === "percentage" ? `${option.depositValue}% deposit` : `$${option.depositValue} deposit`} · {option.balanceDueTrigger === "FULFILLMENT" ? "Due on fulfillment" : option.balanceDueTrigger === "TIME_AFTER_CHECKOUT" ? "Due after checkout" : "Due on specific date"}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <span style={{ fontSize: "12px", color: "#6d7175" }}>
+                      {new Date(option.createdAt).toLocaleDateString()}
+                    </span>
+                    <button
+                      onClick={() => handleDelete(option.id)}
+                      disabled={deletingId === option.id}
+                      style={{ padding: "6px 12px", backgroundColor: "transparent", color: "#d82c0d", fontSize: "13px", fontWeight: "500", borderRadius: "6px", border: "1px solid #d82c0d", cursor: "pointer", opacity: deletingId === option.id ? 0.5 : 1 }}
+                    >
+                      {deletingId === option.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
 
-            <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#202223", marginBottom: "8px" }}>
-              Create your first purchase option
-            </h2>
+          {/* Empty State Card - only shown when no purchase options */}
+          {!loadingOptions && purchaseOptions.length === 0 && (
+            <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "60px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              
+              {/* Illustration */}
+              <div style={{ width: "120px", height: "120px", marginBottom: "24px", backgroundColor: "#f6f6f7", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="12" y="28" width="40" height="28" rx="4" fill="#e1e3e5"/>
+                  <rect x="12" y="28" width="40" height="28" rx="4" stroke="#8c9196" strokeWidth="2" fill="#f6f6f7"/>
+                  <path d="M22 28V20C22 14.477 26.477 10 32 10C37.523 10 42 14.477 42 20V28" stroke="#8c9196" strokeWidth="2.5" strokeLinecap="round"/>
+                  <circle cx="32" cy="42" r="5" fill="#8c9196"/>
+                  <rect x="30" y="45" width="4" height="6" rx="1" fill="#8c9196"/>
+                  <circle cx="20" cy="54" r="3" fill="#ff9900"/>
+                  <circle cx="32" cy="58" r="3" fill="#ff9900"/>
+                  <circle cx="44" cy="54" r="3" fill="#ff9900"/>
+                </svg>
+              </div>
 
-            <p style={{ fontSize: "14px", color: "#6d7175", maxWidth: "380px", lineHeight: "1.6", marginBottom: "20px" }}>
-              Now that you've completed initial setup, create a purchase option and choose which products to offer with a deposit.
-            </p>
+              <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#202223", marginBottom: "8px" }}>
+                Create your first purchase option
+              </h2>
 
-            {/* Warning notice */}
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", backgroundColor: "#fff8e6", border: "1px solid #f5c842", borderRadius: "8px", padding: "12px 16px", maxWidth: "440px", width: "100%", marginBottom: "24px", textAlign: "left" }}>
-              <span style={{ fontSize: "16px", marginTop: "1px" }}>⚠️</span>
-              <p style={{ fontSize: "13px", color: "#4f5359", lineHeight: "1.5", margin: 0 }}>
-                If you're new to lockdIn, we recommend starting with a test product and running through the full buying experience before going live.
+              <p style={{ fontSize: "14px", color: "#6d7175", maxWidth: "380px", lineHeight: "1.6", marginBottom: "20px" }}>
+                Now that you've completed initial setup, create a purchase option and choose which products to offer with a deposit.
               </p>
+
+              {/* Warning notice */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", backgroundColor: "#fff8e6", border: "1px solid #f5c842", borderRadius: "8px", padding: "12px 16px", maxWidth: "440px", width: "100%", marginBottom: "24px", textAlign: "left" }}>
+                <span style={{ fontSize: "16px", marginTop: "1px" }}>⚠️</span>
+                <p style={{ fontSize: "13px", color: "#4f5359", lineHeight: "1.5", margin: 0 }}>
+                  If you're new to lockdIn, we recommend starting with a test product and running through the full buying experience before going live.
+                </p>
+              </div>
+
+              <s-link href="/app/create">
+                <button style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", backgroundColor: "#202223", color: "#ffffff", fontSize: "14px", fontWeight: "600", borderRadius: "6px", border: "none", cursor: "pointer" }}>
+                  Create a purchase option
+                </button>
+              </s-link>
+
             </div>
-
-            <s-link href="/app/create">
-              <button style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", backgroundColor: "#202223", color: "#ffffff", fontSize: "14px", fontWeight: "600", borderRadius: "6px", border: "none", cursor: "pointer" }}>
-                Create a purchase option
-              </button>
-            </s-link>
-
-          </div>
+          )}
         </div>
 
         {/* Right Sidebar */}

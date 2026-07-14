@@ -1,4 +1,5 @@
 import { CreateSellingPlanGroupGlobalActionContext } from "gadget-server";
+import { api } from "gadget-server";
 
 export const params = {
   name: { type: "string" },
@@ -189,9 +190,26 @@ export const run = async ({ params, logger, connections }: CreateSellingPlanGrou
   }
 
   const sellingPlanGroup = result.sellingPlanGroupCreate.sellingPlanGroup;
+  const sellingPlanId = sellingPlanGroup.sellingPlans.edges[0]?.node?.id;
+
+  await api.depositRule.create({
+    depositRule: {
+      name: name,
+      shopifySellingPlanGroupId: sellingPlanGroup.id,
+      shopifySellingPlanId: sellingPlanId,
+      lineItemHelpText: lineItemHelpText || "Deposit only due at checkout",
+      allocationType: allocationType,
+      depositType: depositType,
+      depositValue: Number(depositValue),
+      balanceDueTrigger: balanceDueTrigger,
+      payInFull: payInFull,
+      displaySettings: displaySettings,
+    }
+  });
+
   return {
     success: true,
     sellingPlanGroupId: sellingPlanGroup.id,
-    sellingPlanId: sellingPlanGroup.sellingPlans.edges[0]?.node?.id
+    sellingPlanId: sellingPlanId,
   };
 };

@@ -12,6 +12,13 @@ export const permissions: GadgetPermissions = {
     "shopify-app-users": {
       storageKey: "Role-Shopify-App",
       models: {
+        depositRule: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+          },
+        },
         shopifyGdprRequest: {
           read: {
             filter:
@@ -47,6 +54,8 @@ export const permissions: GadgetPermissions = {
       },
       actions: {
         createSellingPlanGroup: true,
+        deleteSellingPlanGroup: true,
+        listSellingPlanGroups: true,
       },
     },
     unauthenticated: {
