@@ -1,0 +1,22 @@
+name = "lockdIn Deposit Widget"
+type = "theme"
+uid = "30010617-9cd5-0bc9-1462-0ed94318b54738e6259e"
+
+[settings]
+  [[settings.fields]]
+  key = "show_deposit_badge"
+  type = "checkbox"
+  label = "Show deposit badge"
+  default = true
+
+  [[settings.fields]]
+  key = "badge_color"
+  type = "color"
+  label = "Badge color"
+  default = "#ff9900"
+
+  [[settings.fields]]
+  key = "button_text"
+  type = "text"
+  label = "Deposit button text"
+  default = "Pay deposit now"

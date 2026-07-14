@@ -101,29 +101,82 @@ export default function CreatePurchaseOption() {
   const handleSave = async () => {
     setGeneralError("");
 
-    // Validate Name
     if (!name.trim()) {
-      setGeneralError("Please enter a purchase option name.");
+      setGeneralError("Purchase option name is required.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
       return;
     }
 
-    // Validate Deposit Value
-    const depNum = Number(depositValue);
-    if (depositValue.trim() === "" || isNaN(depNum) || depNum < 0) {
-      setDepositError("A number between 0 and 99.");
-      setGeneralError("Please enter a valid deposit amount.");
+    if (!depositValue || Number(depositValue) <= 0) {
+      setGeneralError("Please enter a valid deposit amount greater than 0.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
       return;
     }
-    if (depositType === "percentage" && depNum > 99) {
-      setDepositError("A number between 0 and 99.");
-      setGeneralError("Please enter a valid deposit amount.");
+
+    if (depositType === "percentage" && Number(depositValue) >= 100) {
+      setGeneralError("Deposit percentage must be between 1 and 99.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
+
+    if (allocationType === "products" && selectedProducts.length === 0) {
+      setGeneralError("Please select at least one product, or choose Tags or Whole store instead.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
+
+    if (allocationType === "variants" && selectedVariants.length === 0) {
+      setGeneralError("Please select at least one variant, or choose Tags or Whole store instead.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
+
+    if (allocationType === "tags" && !productTags.trim()) {
+      setGeneralError("Please enter at least one product tag.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
+
+    if (balanceDueTrigger === "days" && (!balanceDueDays || Number(balanceDueDays) <= 0)) {
+      setGeneralError("Please enter the number of days after checkout for balance due.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
+
+    if (balanceDueTrigger === "date" && !balanceDueDate) {
+      setGeneralError("Please select a specific date for balance due.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
       return;
     }
 
     setFetching(true);
     try {
-      const result = await api.createSellingPlanGroup({
-        name,
+      await api.createSellingPlanGroup({
+        name: name.trim(),
         lineItemHelpText,
         allocationType,
         selectedProducts: JSON.stringify(selectedProducts),
@@ -131,23 +184,21 @@ export default function CreatePurchaseOption() {
         productTags,
         excludedProducts: JSON.stringify(excludedProducts),
         depositType,
-        depositValue: depNum,
+        depositValue: Number(depositValue),
         payInFull,
         displaySettings,
         paymentCollection,
         balanceDueTrigger,
-        balanceDueDays: balanceDueDays ? Number(balanceDueDays) : 0,
-        balanceDueDate: balanceDueDate || ""
+        balanceDueDays: Number(balanceDueDays),
+        balanceDueDate,
       });
-
-      if (result && (result as any).success) {
-        if (window.shopify) {
-          window.shopify.toast.show("Purchase option saved successfully");
-        }
-        navigate("/app");
-      }
+      navigate("/app");
     } catch (err: any) {
-      setGeneralError(err.message || "An error occurred while saving.");
+      setGeneralError(err.message || "Failed to save purchase option. Please try again.");
+      setTimeout(() => {
+        const banner = document.getElementById("lockdin-error-banner");
+        if (banner) banner.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     } finally {
       setFetching(false);
     }
@@ -162,9 +213,11 @@ export default function CreatePurchaseOption() {
         </div>
 
         {generalError && (
-          <s-banner heading="Failed to save purchase option" tone="critical">
-            <p>{generalError}</p>
-          </s-banner>
+          <div id="lockdin-error-banner" style={{ position: "sticky", top: 0, zIndex: 100 }}>
+            <s-banner heading="Please fix the following error" tone="critical">
+              <p>{generalError}</p>
+            </s-banner>
+          </div>
         )}
 
         {/* Card 1: Purchase Option Basic Details */}

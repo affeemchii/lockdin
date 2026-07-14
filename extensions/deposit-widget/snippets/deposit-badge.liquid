@@ -1,0 +1,21 @@
+{% if deposit_percentage %}
+  <span style="
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff8e6;
+    border: 1px solid #f5c842;
+    color: #916a00;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  ">
+    <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+      <rect x="3" y="8" width="14" height="10" rx="2" stroke="#916a00" stroke-width="1.5" fill="none"/>
+      <path d="M7 8V6C7 3.791 8.343 2 10 2C11.657 2 13 3.791 13 6V8" stroke="#916a00" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Deposit available: {{ deposit_percentage }}% now, rest later
+  </span>
+{% endif %}

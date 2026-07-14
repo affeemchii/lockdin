@@ -1,0 +1,12 @@
+{
+  "deposit": {
+    "widget": {
+      "title": "Flexible Payment Options",
+      "deposit_option": "Pay Deposit Now",
+      "full_option": "Pay in Full",
+      "deposit_description": "Secure your order with a deposit. Pay the remaining balance later.",
+      "full_description": "Pay the full amount now and get instant confirmation.",
+      "badge_text": "today"
+    }
+  }
+}

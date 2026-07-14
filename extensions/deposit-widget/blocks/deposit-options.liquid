@@ -1,0 +1,226 @@
+{% liquid
+  assign selling_plan_groups = product.selling_plan_groups
+  assign has_deposit_plan = false
+  assign deposit_plan_group = nil
+
+  for group in selling_plan_groups
+    if group.app_id contains 'lockdin' or group.name contains 'lockdIn' or group.name contains 'deposit' or group.name contains 'Deposit'
+      assign has_deposit_plan = true
+      assign deposit_plan_group = group
+      break
+    endif
+  endfor
+%}
+
+{% if has_deposit_plan and deposit_plan_group != nil %}
+  {% assign selling_plan = deposit_plan_group.selling_plans | first %}
+  {% if selling_plan != nil %}
+    <div
+      class="lockdin-deposit-widget"
+      data-selling-plan-id="{{ selling_plan.id }}"
+      style="
+        margin: 16px 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      "
+    >
+      <!-- Deposit Options Container -->
+      <div style="
+        border: 1px solid #e1e3e5;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+      ">
+
+        <!-- Header -->
+        <div style="
+          padding: 12px 16px;
+          background: #f6f6f7;
+          border-bottom: 1px solid #e1e3e5;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        ">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="8" width="14" height="10" rx="2" stroke="#202223" stroke-width="1.5" fill="none"/>
+            <path d="M7 8V6C7 3.791 8.343 2 10 2C11.657 2 13 3.791 13 6V8" stroke="#202223" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="10" cy="13" r="1.5" fill="#202223"/>
+          </svg>
+          <span style="font-size: 13px; font-weight: 600; color: #202223;">
+            Flexible Payment Options
+          </span>
+        </div>
+
+        <!-- Pay Deposit Option -->
+        <label
+          class="lockdin-option lockdin-deposit-option"
+          style="
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #e1e3e5;
+            transition: background 0.15s ease;
+          "
+        >
+          <input
+            type="radio"
+            name="lockdin-payment-option"
+            value="deposit"
+            class="lockdin-radio"
+            checked
+            style="margin-top: 2px; accent-color: #202223;"
+            data-selling-plan-id="{{ selling_plan.id }}"
+          />
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 14px; font-weight: 600; color: #202223;">
+                Pay Deposit Now
+              </span>
+              {% for checkout_charge in selling_plan.checkout_charge %}
+                {% if checkout_charge.value_type == 'percentage' %}
+                  <span style="
+                    background: {{ block.settings.badge_color }};
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                  ">
+                    {{ checkout_charge.value }}% today
+                  </span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <p style="font-size: 13px; color: #6d7175; margin: 0;">
+              {{ selling_plan.description | default: 'Secure your order with a deposit. Pay the remaining balance later.' }}
+            </p>
+            {% for checkout_charge in selling_plan.checkout_charge %}
+              {% if checkout_charge.value_type == 'percentage' %}
+                <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
+                  Pay {{ checkout_charge.value }}% (
+                  <span class="lockdin-deposit-amount">
+                    {{- current_variant.price | times: checkout_charge.value | divided_by: 100 | money -}}
+                  </span>
+                  ) now — remaining balance due later.
+                </p>
+              {% elsif checkout_charge.value_type == 'price' %}
+                <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
+                  Pay {{ checkout_charge.value | money }} now — remaining balance due later.
+                </p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </label>
+
+        <!-- Pay in Full Option -->
+        <label
+          class="lockdin-option lockdin-full-option"
+          style="
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+          "
+        >
+          <input
+            type="radio"
+            name="lockdin-payment-option"
+            value="full"
+            class="lockdin-radio"
+            style="margin-top: 2px; accent-color: #202223;"
+          />
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 14px; font-weight: 600; color: #202223;">
+                Pay in Full
+              </span>
+              <span style="font-size: 13px; color: #202223; font-weight: 600;">
+                {{ current_variant.price | money }}
+              </span>
+            </div>
+            <p style="font-size: 13px; color: #6d7175; margin: 0;">
+              Pay the full amount now and get instant confirmation.
+            </p>
+          </div>
+        </label>
+
+      </div>
+
+      <!-- Hidden selling plan input - this is what Shopify reads -->
+      <input
+        type="hidden"
+        id="lockdin-selling-plan-input"
+        name="selling_plan"
+        value="{{ selling_plan.id }}"
+      />
+
+    </div>
+
+    <script>
+      (function() {
+        var widget = document.querySelector('.lockdin-deposit-widget');
+        if (!widget) return;
+
+        var radios = widget.querySelectorAll('.lockdin-radio');
+        var sellingPlanInput = document.getElementById('lockdin-selling-plan-input');
+        var depositSellingPlanId = widget.dataset.sellingPlanId;
+        var options = widget.querySelectorAll('.lockdin-option');
+
+        function updateSelection(value) {
+          options.forEach(function(option) {
+            option.style.background = '#ffffff';
+          });
+
+          var selectedLabel = widget.querySelector('label:has(input[value="' + value + '"])');
+          if (selectedLabel) {
+            selectedLabel.style.background = '#f6f6f7';
+          }
+
+          if (value === 'deposit') {
+            sellingPlanInput.value = depositSellingPlanId;
+            sellingPlanInput.disabled = false;
+          } else {
+            sellingPlanInput.value = '';
+            sellingPlanInput.disabled = true;
+          }
+
+          var changeEvent = new Event('change', { bubbles: true });
+          sellingPlanInput.dispatchEvent(changeEvent);
+        }
+
+        radios.forEach(function(radio) {
+          radio.addEventListener('change', function() {
+            updateSelection(this.value);
+          });
+        });
+
+        updateSelection('deposit');
+      })();
+    </script>
+
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "lockdIn Deposit Options",
+  "target": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge color",
+      "default": "#ff9900"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_full_price_option",
+      "label": "Show pay in full option",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
