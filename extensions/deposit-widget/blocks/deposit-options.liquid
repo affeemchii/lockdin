@@ -4,7 +4,9 @@
   assign deposit_plan_group = nil
 
   for group in selling_plan_groups
-    if group.app_id contains 'lockdin' or group.name contains 'lockdIn' or group.name contains 'deposit' or group.name contains 'Deposit'
+    assign group_name_downcase = group.name | downcase
+    assign merchant_code_downcase = group.merchant_code | downcase
+    if group_name_downcase contains 'deposit' or group_name_downcase contains 'lockdin' or merchant_code_downcase contains 'lockdin-upfront-deposit'
       assign has_deposit_plan = true
       assign deposit_plan_group = group
       break
@@ -100,7 +102,7 @@
                 <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
                   Pay {{ checkout_charge.value }}% (
                   <span class="lockdin-deposit-amount">
-                    {{- current_variant.price | times: checkout_charge.value | divided_by: 100 | money -}}
+                    {{- product.selected_or_first_available_variant.price | times: checkout_charge.value | divided_by: 100 | money -}}
                   </span>
                   ) now — remaining balance due later.
                 </p>
@@ -138,7 +140,7 @@
                 Pay in Full
               </span>
               <span style="font-size: 13px; color: #202223; font-weight: 600;">
-                {{ current_variant.price | money }}
+                {{ product.selected_or_first_available_variant.price | money }}
               </span>
             </div>
             <p style="font-size: 13px; color: #6d7175; margin: 0;">

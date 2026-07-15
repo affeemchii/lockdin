@@ -10,7 +10,7 @@ export default function AppDashboardIndex() {
     const fetchOptions = async () => {
       try {
         const result = await api.listSellingPlanGroups();
-        setPurchaseOptions(result.plans || []);
+        setPurchaseOptions((result as any).plans || []);
       } catch (err) {
         console.error("Failed to fetch purchase options", err);
       } finally {
@@ -25,7 +25,7 @@ export default function AppDashboardIndex() {
     setDeletingId(sellingPlanGroupId);
     try {
       await api.deleteSellingPlanGroup({ sellingPlanGroupId });
-      setPurchaseOptions(prev => prev.filter(p => p.id !== sellingPlanGroupId));
+      setPurchaseOptions(prev => prev.filter((p: any) => p.id !== sellingPlanGroupId));
     } catch (err) {
       console.error("Failed to delete", err);
       alert("Failed to delete purchase option. Please try again.");
@@ -37,52 +37,37 @@ export default function AppDashboardIndex() {
   return (
     <s-page heading="Dashboard">
       <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-        
-        {/* Main Content - Left Column */}
+
+        {/* Main Content */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
 
           {/* Metrics Bar */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", backgroundColor: "#e1e3e5", border: "1px solid #e1e3e5", borderRadius: "8px", overflow: "hidden" }}>
             <div style={{ backgroundColor: "#ffffff", padding: "16px 20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 2L12.4 7.2L18 8.2L14 12.1L15 17.8L10 15.1L5 17.8L6 12.1L2 8.2L7.6 7.2L10 2Z" fill="#8c9196"/>
-                </svg>
-                <span style={{ fontSize: "13px", color: "#6d7175" }}>Prior 7 days</span>
-              </div>
               <p style={{ fontSize: "12px", color: "#6d7175", marginBottom: "4px" }}>Total lockdIn Sales</p>
               <p style={{ fontSize: "22px", fontWeight: "700", color: "#202223" }}>$0.00</p>
+              <p style={{ fontSize: "11px", color: "#8c9196", marginTop: "4px" }}>Prior 7 days</p>
             </div>
             <div style={{ backgroundColor: "#ffffff", padding: "16px 20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 2L12.4 7.2L18 8.2L14 12.1L15 17.8L10 15.1L5 17.8L6 12.1L2 8.2L7.6 7.2L10 2Z" fill="#8c9196"/>
-                </svg>
-                <span style={{ fontSize: "13px", color: "#6d7175" }}>Prior 7 days</span>
-              </div>
               <p style={{ fontSize: "12px", color: "#6d7175", marginBottom: "4px" }}>Total lockdIn Orders</p>
               <p style={{ fontSize: "22px", fontWeight: "700", color: "#202223" }}>0</p>
+              <p style={{ fontSize: "11px", color: "#8c9196", marginTop: "4px" }}>Prior 7 days</p>
             </div>
             <div style={{ backgroundColor: "#ffffff", padding: "16px 20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 2L12.4 7.2L18 8.2L14 12.1L15 17.8L10 15.1L5 17.8L6 12.1L2 8.2L7.6 7.2L10 2Z" fill="#8c9196"/>
-                </svg>
-                <span style={{ fontSize: "13px", color: "#6d7175" }}>Prior 7 days</span>
-              </div>
               <p style={{ fontSize: "12px", color: "#6d7175", marginBottom: "4px" }}>lockdIn AOV</p>
               <p style={{ fontSize: "22px", fontWeight: "700", color: "#202223" }}>$0.00</p>
+              <p style={{ fontSize: "11px", color: "#8c9196", marginTop: "4px" }}>Prior 7 days</p>
             </div>
           </div>
 
-          {/* Theme Extension Badge Row */}
+          {/* Theme Extension Badge */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: "600", color: "#202223" }}>Theme extension block</span>
             <span style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", backgroundColor: "#fdf3d1", color: "#916a00", fontSize: "12px", fontWeight: "600", borderRadius: "4px", border: "1px solid #f5c842" }}>
               Inactive
             </span>
             <span style={{ fontSize: "13px", color: "#6d7175", flex: 1 }}>
-              lockdIn theme extensions may not be enabled. Open the theme editor to ensure lockdIn is properly installed in your theme.
+              lockdIn theme extensions may not be enabled. Open the theme editor to ensure lockdIn is properly installed.
             </span>
             <a href="https://admin.shopify.com/themes/current/editor" target="_blank" style={{ fontSize: "13px", color: "#2c6ecb", textDecoration: "none", whiteSpace: "nowrap" }}>
               Open theme editor →
@@ -100,7 +85,7 @@ export default function AppDashboardIndex() {
                   </button>
                 </s-link>
               </div>
-              {purchaseOptions.map((option, index) => (
+              {purchaseOptions.map((option: any, index: number) => (
                 <div key={option.id} style={{ padding: "16px 20px", borderBottom: index < purchaseOptions.length - 1 ? "1px solid #e1e3e5" : "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <p style={{ fontSize: "14px", fontWeight: "600", color: "#202223", margin: 0 }}>{option.name}</p>
@@ -125,54 +110,47 @@ export default function AppDashboardIndex() {
             </div>
           )}
 
-          {/* Empty State Card - only shown when no purchase options */}
+          {/* Empty State */}
           {!loadingOptions && purchaseOptions.length === 0 && (
             <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "60px 40px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              
-              {/* Illustration */}
-              <div style={{ width: "120px", height: "120px", marginBottom: "24px", backgroundColor: "#f6f6f7", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="12" y="28" width="40" height="28" rx="4" fill="#e1e3e5"/>
-                  <rect x="12" y="28" width="40" height="28" rx="4" stroke="#8c9196" strokeWidth="2" fill="#f6f6f7"/>
+              <div style={{ width: "80px", height: "80px", marginBottom: "24px", backgroundColor: "#f6f6f7", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="12" y="28" width="40" height="28" rx="4" stroke="#8c9196" strokeWidth="2.5" fill="#f6f6f7"/>
                   <path d="M22 28V20C22 14.477 26.477 10 32 10C37.523 10 42 14.477 42 20V28" stroke="#8c9196" strokeWidth="2.5" strokeLinecap="round"/>
-                  <circle cx="32" cy="42" r="5" fill="#8c9196"/>
-                  <rect x="30" y="45" width="4" height="6" rx="1" fill="#8c9196"/>
-                  <circle cx="20" cy="54" r="3" fill="#ff9900"/>
-                  <circle cx="32" cy="58" r="3" fill="#ff9900"/>
-                  <circle cx="44" cy="54" r="3" fill="#ff9900"/>
+                  <circle cx="32" cy="42" r="4" fill="#8c9196"/>
                 </svg>
               </div>
-
               <h2 style={{ fontSize: "18px", fontWeight: "600", color: "#202223", marginBottom: "8px" }}>
                 Create your first purchase option
               </h2>
-
               <p style={{ fontSize: "14px", color: "#6d7175", maxWidth: "380px", lineHeight: "1.6", marginBottom: "20px" }}>
                 Now that you've completed initial setup, create a purchase option and choose which products to offer with a deposit.
               </p>
-
-              {/* Warning notice */}
               <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", backgroundColor: "#fff8e6", border: "1px solid #f5c842", borderRadius: "8px", padding: "12px 16px", maxWidth: "440px", width: "100%", marginBottom: "24px", textAlign: "left" }}>
                 <span style={{ fontSize: "16px", marginTop: "1px" }}>⚠️</span>
                 <p style={{ fontSize: "13px", color: "#4f5359", lineHeight: "1.5", margin: 0 }}>
                   If you're new to lockdIn, we recommend starting with a test product and running through the full buying experience before going live.
                 </p>
               </div>
-
               <s-link href="/app/create">
-                <button style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 20px", backgroundColor: "#202223", color: "#ffffff", fontSize: "14px", fontWeight: "600", borderRadius: "6px", border: "none", cursor: "pointer" }}>
+                <button style={{ padding: "10px 20px", backgroundColor: "#202223", color: "#ffffff", fontSize: "14px", fontWeight: "600", borderRadius: "6px", border: "none", cursor: "pointer" }}>
                   Create a purchase option
                 </button>
               </s-link>
-
             </div>
           )}
+
+          {/* Loading State */}
+          {loadingOptions && (
+            <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "40px", textAlign: "center" }}>
+              <p style={{ color: "#6d7175", fontSize: "14px" }}>Loading purchase options...</p>
+            </div>
+          )}
+
         </div>
 
         {/* Right Sidebar */}
-        <div style={{ width: "280px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
-          
-          {/* Help Center Card */}
+        <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
           <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <span style={{ fontSize: "16px" }}>❓</span>
@@ -185,8 +163,6 @@ export default function AppDashboardIndex() {
               View help center
             </button>
           </div>
-
-          {/* Explore Features Card */}
           <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <span style={{ fontSize: "16px" }}>✨</span>
@@ -199,8 +175,6 @@ export default function AppDashboardIndex() {
               Explore features
             </button>
           </div>
-
-          {/* Change Log Card */}
           <div style={{ backgroundColor: "#ffffff", border: "1px solid #e1e3e5", borderRadius: "8px", padding: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
               <span style={{ fontSize: "16px" }}>📋</span>
@@ -213,8 +187,8 @@ export default function AppDashboardIndex() {
               View change log
             </button>
           </div>
-
         </div>
+
       </div>
     </s-page>
   );

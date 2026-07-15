@@ -5,7 +5,11 @@ import type { Route } from "./+types/_app._index";
 export const loader = async ({ context }: Route.LoaderArgs) => {
   const shopify = context.connections.shopify.current;
   if (!shopify) {
-    throw new Error("Missing Shopify connection");
+    return {
+      hasActivePlan: false,
+      hasRules: false,
+      shopId: null,
+    };
   }
 
   // 1. Fetch active Shopify subscriptions to check for active paid plan
@@ -41,19 +45,10 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
   });
   const hasRules = rules.length > 0;
 
-  // Redirect immediately if they have both plan and rules configured
-  if (hasActivePlan && hasRules) {
-    throw new Response("", {
-      status: 302,
-      headers: { Location: "/app" },
-    });
-  }
-
-  return {
-    hasActivePlan,
-    hasRules,
-    shopId: context.connections.shopify.currentShopId,
-  };
+  throw new Response("", {
+    status: 302,
+    headers: { Location: "/app" },
+  });
 };
 
 export const action = async ({ context, request }: Route.ActionArgs) => {
@@ -166,7 +161,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const { csrfToken } = useOutletContext<{ csrfToken: string }>();
+  const outletContext = useOutletContext<{ csrfToken?: string } | undefined>();
+  const csrfToken = outletContext?.csrfToken;
 
   const isUpgrading = navigation.state === "submitting" && navigation.formData?.get("actionType") === "upgrade";
   const isDowngrading = navigation.state === "submitting" && navigation.formData?.get("actionType") === "downgrade";
@@ -182,12 +178,18 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   }, [actionData]);
 
   const handleUpgrade = () => {
-    submit({ actionType: "upgrade", csrfToken }, { method: "post" });
+    submit(
+      csrfToken ? { actionType: "upgrade", csrfToken } : { actionType: "upgrade" },
+      { method: "post" }
+    );
   };
 
   const handleDowngrade = () => {
     if (confirm("Are you sure you want to cancel your Pro Growth subscription and downgrade to the Free Tier?")) {
-      submit({ actionType: "downgrade", csrfToken }, { method: "post" });
+      submit(
+        csrfToken ? { actionType: "downgrade", csrfToken } : { actionType: "downgrade" },
+        { method: "post" }
+      );
     }
   };
 

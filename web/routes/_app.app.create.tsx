@@ -213,10 +213,31 @@ export default function CreatePurchaseOption() {
         </div>
 
         {generalError && (
-          <div id="lockdin-error-banner" style={{ position: "sticky", top: 0, zIndex: 100 }}>
-            <s-banner heading="Please fix the following error" tone="critical">
-              <p>{generalError}</p>
-            </s-banner>
+          <div
+            id="lockdin-error-banner"
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 100,
+              backgroundColor: "#fff4f4",
+              border: "1px solid #d82c0d",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "10px",
+              marginBottom: "8px"
+            }}
+          >
+            <span style={{ fontSize: "18px", flexShrink: 0 }}>⛔</span>
+            <div>
+              <p style={{ fontSize: "14px", fontWeight: "600", color: "#d82c0d", margin: "0 0 4px 0" }}>
+                Please fix the following error
+              </p>
+              <p style={{ fontSize: "13px", color: "#d82c0d", margin: 0 }}>
+                {generalError}
+              </p>
+            </div>
           </div>
         )}
 
@@ -520,9 +541,23 @@ export default function CreatePurchaseOption() {
         {/* Action Buttons */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", borderTop: "1px solid #e1e3e5", paddingTop: "16px" }}>
           <s-button onClick={() => navigate("/app")}>Cancel</s-button>
-          <s-button variant="primary" onClick={handleSave} disabled={fetching}>
+          <button
+            onClick={handleSave}
+            disabled={fetching}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: fetching ? "#8c9196" : "#202223",
+              color: "#ffffff",
+              fontSize: "14px",
+              fontWeight: "600",
+              borderRadius: "6px",
+              border: "none",
+              cursor: fetching ? "not-allowed" : "pointer",
+              minWidth: "160px"
+            }}
+          >
             {fetching ? "Saving..." : "Save purchase option"}
-          </s-button>
+          </button>
         </div>
 
       </div>
