@@ -45,10 +45,19 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
   });
   const hasRules = rules.length > 0;
 
-  throw new Response("", {
-    status: 302,
-    headers: { Location: "/app" },
-  });
+  // Redirect immediately if they have both plan and rules configured
+  if (hasActivePlan && hasRules) {
+    throw new Response("", {
+      status: 302,
+      headers: { Location: "/app" },
+    });
+  }
+
+  return {
+    hasActivePlan,
+    hasRules,
+    shopId: context.connections.shopify.currentShopId,
+  };
 };
 
 export const action = async ({ context, request }: Route.ActionArgs) => {
@@ -196,7 +205,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   return (
     <s-page heading="Welcome to lockdIn!">
       <div style={{ display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "40px" }}>
-        
+
         {/* Banner Section */}
         <s-banner heading="Secure your Cash on Delivery (COD) orders by collecting automated upfront deposits at checkout." tone="info" />
 
@@ -204,7 +213,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <s-card>
           <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
             <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#202223", margin: 0 }}>Getting Started Checklist</h2>
-            
+
             <s-stack gap="base">
               {/* Step 1 */}
               <div style={{ display: "flex", gap: "16px", borderBottom: "1px solid #e1e3e5", paddingBottom: "16px", width: "100%" }}>
@@ -251,9 +260,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         {/* Pricing Plans Grid Section */}
         <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#202223", margin: 0 }}>Select a Plan</h2>
-          
+
           <s-grid gridTemplateColumns="1fr 1fr" gap="base">
-            
+
             {/* Plan 1: Starter */}
             <s-grid-item>
               <s-card>
@@ -274,11 +283,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div style={{ marginTop: "16px" }}>
-                    <s-button 
-                      disabled={!hasActivePlan || isDowngrading} 
-                      onClick={handleDowngrade} 
+                    <s-button
+                      disabled={!hasActivePlan || isDowngrading}
+                      onClick={handleDowngrade}
                       style={{ width: "100%" }}
                     >
                       {isDowngrading ? "Downgrading..." : hasActivePlan ? "Downgrade to Free" : "Current Plan"}
@@ -316,13 +325,13 @@ export default function Index({ loaderData }: Route.ComponentProps) {
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div style={{ marginTop: "16px" }}>
-                    <s-button 
-                      disabled={hasActivePlan || isUpgrading} 
-                      variant="primary" 
-                      onClick={handleUpgrade} 
-                      loading={isUpgrading} 
+                    <s-button
+                      disabled={hasActivePlan || isUpgrading}
+                      variant="primary"
+                      onClick={handleUpgrade}
+                      loading={isUpgrading}
                       style={{ width: "100%" }}
                     >
                       {hasActivePlan ? "Current Plan" : "Upgrade to Pro"}
