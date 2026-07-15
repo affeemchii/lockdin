@@ -5,10 +5,33 @@
 
   for group in selling_plan_groups
     assign group_name_downcase = group.name | downcase
-    assign merchant_code_downcase = group.merchant_code | downcase
-    if group_name_downcase contains 'deposit' or group_name_downcase contains 'lockdin' or merchant_code_downcase contains 'lockdin-upfront-deposit'
+
+    comment
+      Check 1: group name contains 'deposit' or 'lockdin'
+      These match merchant-named plans with obvious names
+    endcomment
+    if group_name_downcase contains 'deposit' or group_name_downcase contains 'lockdin'
       assign has_deposit_plan = true
       assign deposit_plan_group = group
+      break
+    endif
+
+    comment
+      Check 2: any option inside the group is named 'Deposit Option'
+      This is the most reliable check — lockdIn always creates
+      selling plans with options[0].name = 'Deposit Option'
+      This catches plans with any merchant-chosen name like 'AA'
+    endcomment
+    for option in group.options
+      assign option_name_downcase = option.name | downcase
+      if option_name_downcase contains 'deposit option'
+        assign has_deposit_plan = true
+        assign deposit_plan_group = group
+        break
+      endif
+    endfor
+
+    if has_deposit_plan
       break
     endif
   endfor
@@ -163,30 +186,51 @@
         if (!widget) return;
 
         var radios = widget.querySelectorAll('.lockdin-radio');
-        var sellingPlanInput = document.getElementById('lockdin-selling-plan-input');
-        var depositSellingPlanId = widget.dataset.sellingPlanId;
         var options = widget.querySelectorAll('.lockdin-option');
 
+        // The selling plan GID from Shopify looks like:
+        // gid://shopify/SellingPlan/123456789
+        // Shopify cart endpoint needs only the numeric part: 123456789
+        // We extract it by splitting on the last slash
+        var rawSellingPlanId = widget.dataset.sellingPlanId || '';
+        var numericSellingPlanId = rawSellingPlanId.split('/').pop();
+
+        // Target the theme's OWN selling_plan input that lives 
+        // inside the cart form. Our widget is outside the form 
+        // so we cannot use our own hidden input for submission.
+        // The theme's input is always: input[name="selling_plan"]
+        // inside a product form.
+        var nativeSellingPlanInput = document.querySelector(
+          'form[action="/cart/add"] input[name="selling_plan"]'
+        );
+
         function updateSelection(value) {
+          // Update visual highlight on selected option
           options.forEach(function(option) {
             option.style.background = '#ffffff';
           });
 
-          var selectedLabel = widget.querySelector('label:has(input[value="' + value + '"])');
+          var selectedLabel = widget.querySelector(
+            'label:has(input[value="' + value + '"])'
+          );
           if (selectedLabel) {
             selectedLabel.style.background = '#f6f6f7';
           }
 
-          if (value === 'deposit') {
-            sellingPlanInput.value = depositSellingPlanId;
-            sellingPlanInput.disabled = false;
-          } else {
-            sellingPlanInput.value = '';
-            sellingPlanInput.disabled = true;
+          // Write to the theme's native selling_plan input
+          // which IS inside the cart form and will be submitted
+          if (nativeSellingPlanInput) {
+            if (value === 'deposit') {
+              // Set numeric selling plan ID so Shopify applies deposit
+              nativeSellingPlanInput.value = numericSellingPlanId;
+            } else {
+              // Empty value means no selling plan = full price
+              nativeSellingPlanInput.value = '';
+            }
+            // Dispatch change event so theme JS stays in sync
+            var changeEvent = new Event('change', { bubbles: true });
+            nativeSellingPlanInput.dispatchEvent(changeEvent);
           }
-
-          var changeEvent = new Event('change', { bubbles: true });
-          sellingPlanInput.dispatchEvent(changeEvent);
         }
 
         radios.forEach(function(radio) {
@@ -195,7 +239,26 @@
           });
         });
 
+        // Set deposit as default selection on page load
         updateSelection('deposit');
+
+        // Hide Shopify's native selling plan selector UI
+        // after theme JS has had time to initialise (400ms)
+        setTimeout(function() {
+          var nativeInput = document.querySelector(
+            'input[name="purchase_option"]'
+          );
+          if (nativeInput) {
+            var wrapper = nativeInput.closest('fieldset')
+              || nativeInput.closest('purchase-options-radio-component')
+              || nativeInput.closest('.product-form__input')
+              || nativeInput.parentElement.parentElement;
+            if (wrapper) {
+              wrapper.style.display = 'none';
+            }
+          }
+        }, 400);
+
       })();
     </script>
 
