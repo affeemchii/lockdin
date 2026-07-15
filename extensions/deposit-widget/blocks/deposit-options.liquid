@@ -79,39 +79,35 @@
               <span style="font-size: 14px; font-weight: 600; color: #202223;">
                 Pay Deposit Now
               </span>
-              {% for checkout_charge in selling_plan.checkout_charge %}
-                {% if checkout_charge.value_type == 'percentage' %}
-                  <span style="
-                    background: {{ block.settings.badge_color }};
-                    color: #ffffff;
-                    font-size: 11px;
-                    font-weight: 700;
-                    padding: 2px 8px;
-                    border-radius: 20px;
-                  ">
-                    {{ checkout_charge.value }}% today
-                  </span>
-                {% endif %}
-              {% endfor %}
+              {% if selling_plan.checkout_charge.value_type == 'percentage' %}
+                <span style="
+                  background: {{ block.settings.badge_color }};
+                  color: #ffffff;
+                  font-size: 11px;
+                  font-weight: 700;
+                  padding: 2px 8px;
+                  border-radius: 20px;
+                ">
+                  {{ selling_plan.checkout_charge.value }}% today
+                </span>
+              {% endif %}
             </div>
             <p style="font-size: 13px; color: #6d7175; margin: 0;">
               {{ selling_plan.description | default: 'Secure your order with a deposit. Pay the remaining balance later.' }}
             </p>
-            {% for checkout_charge in selling_plan.checkout_charge %}
-              {% if checkout_charge.value_type == 'percentage' %}
-                <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
-                  Pay {{ checkout_charge.value }}% (
-                  <span class="lockdin-deposit-amount">
-                    {{- product.selected_or_first_available_variant.price | times: checkout_charge.value | divided_by: 100 | money -}}
-                  </span>
-                  ) now — remaining balance due later.
-                </p>
-              {% elsif checkout_charge.value_type == 'price' %}
-                <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
-                  Pay {{ checkout_charge.value | money }} now — remaining balance due later.
-                </p>
-              {% endif %}
-            {% endfor %}
+            {% if selling_plan.checkout_charge.value_type == 'percentage' %}
+              <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
+                Pay {{ selling_plan.checkout_charge.value }}% (
+                <span class="lockdin-deposit-amount">
+                  {{- product.selected_or_first_available_variant.price | times: selling_plan.checkout_charge.value | divided_by: 100 | money -}}
+                </span>
+                ) now — remaining balance due on Cash on Delivery.
+              </p>
+            {% elsif selling_plan.checkout_charge.value_type == 'price' %}
+              <p style="font-size: 12px; color: #6d7175; margin: 6px 0 0 0;">
+                Pay {{ selling_plan.checkout_charge.value | money }} now — remaining balance due on Cash on Delivery.
+              </p>
+            {% endif %}
           </div>
         </label>
 
