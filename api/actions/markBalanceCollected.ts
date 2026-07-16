@@ -1,5 +1,3 @@
-import { MarkBalanceCollectedGlobalActionContext } from "gadget-server";
-
 export const params = {
   orderId: { type: "string" },   // Gadget numeric order ID
   orderTags: { type: "string" }, // JSON stringified current tags array
@@ -7,11 +5,11 @@ export const params = {
   currencyCode: { type: "string" },
 };
 
-export const run = async ({
+export const run: ActionRun = async ({
   params,
   logger,
   connections,
-}: MarkBalanceCollectedGlobalActionContext) => {
+}) => {
   const shopify = connections.shopify.current;
   if (!shopify) {
     throw new Error("Shopify connection not found");
