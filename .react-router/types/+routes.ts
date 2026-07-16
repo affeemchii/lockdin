@@ -29,6 +29,9 @@ type Pages = {
   "/app/create": {
     params: {};
   };
+  "/app/orders": {
+    params: {};
+  };
   "/*": {
     params: {
       "*": string;
@@ -39,11 +42,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create" | "/*";
+    page: "/" | "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create" | "/app/orders" | "/*";
   };
   "routes/_app.tsx": {
     id: "routes/_app";
-    page: "/" | "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create";
+    page: "/" | "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create" | "/app/orders";
   };
   "routes/_app._index.tsx": {
     id: "routes/_app._index";
@@ -51,7 +54,7 @@ type RouteFiles = {
   };
   "routes/_app.app.tsx": {
     id: "routes/_app.app";
-    page: "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create";
+    page: "/app" | "/app/integrations" | "/app/analytics" | "/app/settings" | "/app/create" | "/app/orders";
   };
   "routes/_app.app.integrations.tsx": {
     id: "routes/_app.app.integrations";
@@ -73,6 +76,10 @@ type RouteFiles = {
     id: "routes/_app.app.create";
     page: "/app/create";
   };
+  "routes/_app.app.orders.tsx": {
+    id: "routes/_app.app.orders";
+    page: "/app/orders";
+  };
   "routes/$.tsx": {
     id: "routes/$";
     page: "/*";
@@ -89,5 +96,6 @@ type RouteModules = {
   "routes/_app.app.settings": typeof import("./web/routes/_app.app.settings.tsx");
   "routes/_app.app._index": typeof import("./web/routes/_app.app._index.tsx");
   "routes/_app.app.create": typeof import("./web/routes/_app.app.create.tsx");
+  "routes/_app.app.orders": typeof import("./web/routes/_app.app.orders.tsx");
   "routes/$": typeof import("./web/routes/$.tsx");
 };

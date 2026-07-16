@@ -18,4 +18,4 @@ api_version = "2026-04"
 [[webhooks.subscriptions]]
 compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 uri = "https://webhooks.gadget-services.net/shopify/v1?domain=lockdin--development.gadget.app"
-topics = [ "shop/update", "app/uninstalled" ]
+topics = [ "orders/create", "orders/updated", "orders/delete", "shop/update", "app/uninstalled" ]

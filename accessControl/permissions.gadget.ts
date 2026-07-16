@@ -29,6 +29,28 @@ export const permissions: GadgetPermissions = {
             update: true,
           },
         },
+        shopifyOrder: {
+          read: {
+            filter:
+              "accessControl/filters/shopify/shopifyOrder.gelly",
+          },
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
+        shopifyOrderLineItem: {
+          read: {
+            filter:
+              "accessControl/filters/shopify/shopifyOrderLineItem.gelly",
+          },
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
         shopifyShop: {
           read: {
             filter: "accessControl/filters/shopify/shopifyShop.gelly",
@@ -55,7 +77,9 @@ export const permissions: GadgetPermissions = {
       actions: {
         createSellingPlanGroup: true,
         deleteSellingPlanGroup: true,
+        getDepositOrders: true,
         listSellingPlanGroups: true,
+        markBalanceCollected: true,
       },
     },
     unauthenticated: {
