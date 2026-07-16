@@ -15,7 +15,6 @@ export const onSuccess: ActionOnSuccess = async ({ params, record, logger, api, 
       recordId: record.id,
       recordKeys: Object.keys(record),
       paramsKeys: Object.keys(params || {}),
-      recordLineItems: record.lineItems,
       recordTags: record.tags,
       recordFinancialStatus: record.financialStatus,
     }, "shopifyOrder create - inspecting available data");

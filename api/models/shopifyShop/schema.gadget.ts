@@ -6,7 +6,29 @@ import type { GadgetModel } from "gadget-server";
 export const schema: GadgetModel = {
   type: "gadget/model-schema/v2",
   storageKey: "DataModel-Shopify-Shop",
-  fields: {},
+  fields: {
+    lockdinBalanceDueReminders: {
+      type: "boolean",
+      default: true,
+      storageKey: "DataModel-ShopifyShop-lockdinBalanceDueReminders",
+    },
+    lockdinDefaultDepositPercentage: {
+      type: "number",
+      default: 20,
+      storageKey:
+        "DataModel-ShopifyShop-lockdinDefaultDepositPercentage",
+    },
+    lockdinDefaultLineItemText: {
+      type: "string",
+      default: "Deposit only due at checkout",
+      storageKey: "DataModel-ShopifyShop-lockdinDefaultLineItemText",
+    },
+    lockdinReminderDays: {
+      type: "number",
+      default: 3,
+      storageKey: "DataModel-ShopifyShop-lockdinReminderDays",
+    },
+  },
   shopify: {
     fields: {
       address1: { filterIndex: false },

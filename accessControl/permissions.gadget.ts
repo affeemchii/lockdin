@@ -78,8 +78,10 @@ export const permissions: GadgetPermissions = {
         createSellingPlanGroup: true,
         deleteSellingPlanGroup: true,
         getDepositOrders: true,
+        getSettings: true,
         listSellingPlanGroups: true,
         markBalanceCollected: true,
+        saveSettings: true,
       },
     },
     unauthenticated: {
