@@ -259,6 +259,53 @@
           }
         }, 400);
 
+        // Handle Buy it now (dynamic checkout) button visibility
+        // The Buy it now button bypasses the product form entirely
+        // and does not read our selling_plan input — so it always
+        // charges full price regardless of what the customer selected.
+        // Solution: hide Buy it now when deposit is selected,
+        // show it only when Pay in Full is selected.
+        // This is the same approach used by professional deposit apps.
+        function updateBuyItNowVisibility(value) {
+          // Shopify's dynamic checkout buttons have these selectors
+          // across different themes
+          var buyItNowSelectors = [
+            '.shopify-payment-button',
+            '[data-shopify="payment-button"]',
+            '.dynamic-checkout',
+            '#dynamic-checkout-cart',
+            '.dynamic-checkout__content',
+          ];
+
+          buyItNowSelectors.forEach(function(selector) {
+            var el = document.querySelector(selector);
+            if (el) {
+              if (value === 'deposit') {
+                // Hide Buy it now — it cannot pass the selling plan
+                el.style.display = 'none';
+                el.setAttribute('data-lockdin-hidden', 'true');
+              } else {
+                // Show Buy it now when paying full price
+                el.style.display = '';
+                el.removeAttribute('data-lockdin-hidden');
+              }
+            }
+          });
+        }
+
+        // Override updateSelection to also control Buy it now
+        var originalUpdateSelection = updateSelection;
+        updateSelection = function(value) {
+          originalUpdateSelection(value);
+          updateBuyItNowVisibility(value);
+        };
+
+        // Apply on page load after a short delay so the button
+        // has time to render on the page
+        setTimeout(function() {
+          updateBuyItNowVisibility('deposit');
+        }, 600);
+
       })();
     </script>
 
