@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { api } from "../api";
+import { useBilling } from "../hooks/useBilling";
+import { UpgradeModal } from "../components/UpgradeModal";
 
 export default function OrdersPage() {
+
+  // BILLING — check order limit on mount
+  const { billing, startUpgrade } = useBilling();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // orders: array of deposit orders fetched from Shopify
   const [orders, setOrders] = useState<any[]>([]);
@@ -32,6 +38,16 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Called before allowing a new deposit order to be processed.
+  // If free merchant has hit 25 orders this month, show upgrade modal.
+  function checkOrderLimit(): boolean {
+    if (billing?.isOrderLimitHit) {
+      setShowUpgradeModal(true);
+      return false;
+    }
+    return true;
   }
 
   // Called when merchant clicks "Mark as Collected" on an order
@@ -88,9 +104,57 @@ export default function OrdersPage() {
 
   return (
     <s-page heading="Deposit Orders">
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="You've reached your monthly order limit"
+        message="You've used all 25 deposit orders on the free plan this month. Upgrade to Pro for unlimited orders."
+        limitType="orders"
+        billing={billing}
+        startUpgrade={startUpgrade}
+      />
+
       <div style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#6d7175" }}>
         Orders where customers paid a deposit. Mark balance as collected after receiving COD payment.
       </div>
+
+      {/* Order limit warning banner — shown when approaching or at limit */}
+      {!billing?.isPro && billing && billing.monthlyOrderCount >= billing.FREE_ORDER_LIMIT * 0.8 && (
+        <div style={{
+          padding: "12px 16px",
+          backgroundColor: billing.isOrderLimitHit ? "#fff4f4" : "#fff4e5",
+          border: `1px solid ${billing.isOrderLimitHit ? "#d82c0d" : "#ffc453"}`,
+          borderRadius: "8px",
+          marginBottom: "16px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          <span style={{ fontSize: "13px", color: billing.isOrderLimitHit ? "#d82c0d" : "#916a00" }}>
+            {billing.isOrderLimitHit
+              ? `You have reached your limit of ${billing.FREE_ORDER_LIMIT} deposit orders this month.`
+              : `You have used ${billing.monthlyOrderCount} of ${billing.FREE_ORDER_LIMIT} free deposit orders this month.`
+            }
+          </span>
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#202223",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "6px",
+              fontSize: "12px",
+              fontWeight: "600",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              marginLeft: "12px",
+            }}
+          >
+            Upgrade to Pro
+          </button>
+        </div>
+      )}
 
       {/* Error banner */}
       {error && (
