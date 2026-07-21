@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { api } from "../api";
+import { useBilling } from "../hooks/useBilling";
+import { UpgradeModal } from "../components/UpgradeModal";
 
 export default function CreatePurchaseOption() {
   const navigate = useNavigate();
+
+  // BILLING — check plan status on mount
+  // If merchant has 3+ purchase options and is on free, we block them
+  const { billing, startUpgrade } = useBilling();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Card 1: Details
   const [name, setName] = useState("");
@@ -100,6 +107,14 @@ export default function CreatePurchaseOption() {
 
   const handleSave = async () => {
     setGeneralError("");
+
+    // BILLING GATE — check purchase option limit before saving
+    // If merchant is on free and has hit the limit, show upgrade modal
+    // and stop here. Nothing gets saved.
+    if (billing?.isPurchaseOptionLimitHit) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     if (!name.trim()) {
       setGeneralError("Purchase option name is required.");
@@ -206,6 +221,21 @@ export default function CreatePurchaseOption() {
 
   return (
     <s-page heading="Create purchase option">
+
+      {/* UPGRADE MODAL
+          Shown when free merchant tries to create a 4th purchase option.
+          onClose lets them dismiss — they keep using their 3 free options.
+          startUpgrade redirects them to Shopify billing page. */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="You've reached the free plan limit"
+        message="You've used all 3 purchase options on the free plan. Upgrade to Pro for unlimited purchase options and more."
+        limitType="purchaseOptions"
+        billing={billing}
+        startUpgrade={startUpgrade}
+      />
+
       <div style={{ display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "40px" }}>
 
         <div style={{ marginBottom: "4px" }}>
@@ -277,7 +307,6 @@ export default function CreatePurchaseOption() {
           <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
             <h3 style={{ fontSize: "14px", fontWeight: "600", color: "#1a1a1a" }}>Product Selection Type</h3>
 
-            {/* Segmented tab control */}
             <div style={{ display: "flex", border: "1px solid #e1e3e5", borderRadius: "8px", overflow: "hidden", cursor: "pointer" }}>
               <div
                 onClick={() => setAllocationType("products")}
@@ -305,7 +334,6 @@ export default function CreatePurchaseOption() {
               </div>
             </div>
 
-            {/* Products tab */}
             {allocationType === "products" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <s-banner heading="Product Selection Limit" tone="warning">
@@ -329,7 +357,6 @@ export default function CreatePurchaseOption() {
               </div>
             )}
 
-            {/* Variants tab */}
             {allocationType === "variants" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <s-banner heading="Variant Selection Limit" tone="warning">
@@ -353,7 +380,6 @@ export default function CreatePurchaseOption() {
               </div>
             )}
 
-            {/* Tags tab */}
             {allocationType === "tags" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <s-text-field
@@ -368,7 +394,6 @@ export default function CreatePurchaseOption() {
               </div>
             )}
 
-            {/* Whole store tab */}
             {allocationType === "whole_store" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <p style={{ fontSize: "13px", color: "#6d7175" }}>
